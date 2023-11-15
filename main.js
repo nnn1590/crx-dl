@@ -1,11 +1,16 @@
 (function() {
-    var STORE_DOMAIN = 'chrome.google.com';
-    var STORE_BASE_PATH = '/webstore/detail/';
+    var STORE_DOMAINS = ['chrome.google.com', 'chromewebstore.google.com'];
+    var STORE_BASE_PATHS = ['/webstore/detail/', '/detail/'];
     var CRX_BASE_URL = 'https://clients2.google.com/service/update2/crx';
 
     var form = document.getElementById('form');
     var downloadLink = document.getElementById('downloadLink');
-    
+
+    if (STORE_DOMAINS.length != STORE_BASE_PATHS.length) {
+        alert("STORE_DOMAINS.length != STORE_BASE_PATHS.length; Contact the administrator to fix main.js");
+        return;
+    }
+
     form.addEventListener('submit', function(event) {
         event.preventDefault();
     
@@ -18,9 +23,23 @@
         }
     
         var url = new URL(urlStr);
-        if (url.host != STORE_DOMAIN
-            || !url.pathname.startsWith(STORE_BASE_PATH)) {
-            alert('Please enter a valid extension link that starts with ' + STORE_DOMAIN + STORE_BASE_PATH);
+        var isValidUrl = false;
+        var i;
+        for (i = 0; i < STORE_DOMAINS.length; i++) {
+            if (url.host == STORE_DOMAINS[i] && url.pathname.startsWith(STORE_BASE_PATHS[i])) {
+                isValidUrl = true;
+                break;
+            }
+        }
+        if (!isValidUrl) {
+            var errorText = 'Please enter a valid extension link that starts with ' + STORE_DOMAINS[0] + STORE_BASE_PATHS[0];
+            if (STORE_DOMAINS.length > 1) {
+                for (i = 1; i < STORE_DOMAINS.length - 1; i++) {
+                    errorText += ', ' + STORE_DOMAINS[i] + STORE_BASE_PATHS[i];
+                }
+                errorText += ' or ' + STORE_DOMAINS[i] + STORE_BASE_PATHS[i];
+            }
+            alert(errorText);
             return;
         }
     
